@@ -12,13 +12,15 @@ char adress[3] = "01";
 char order[3] = "W0";
 char data[500]="12345";
 char frame[1024];
+int fp;
 void frame_generator(char *start_symbol, char *adress, char *order, char *data, char *stop_symbol);
 
 int main()
 {
-
+    fp = open("ACCESS ADRESS", O_WRONLY);
 	frame_generator(start_symbol, adress, order,  data, stop_symbol);
-	printf("Frame is: %s", &frame);
+	write(fp, frame, 1024 );
+	close(fp);
 	return 0;
 }
 

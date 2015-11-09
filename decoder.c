@@ -6,26 +6,28 @@
 #include <sys/kernel.h>*/
 #include <string.h>
 
-char inc_frame[1024] = ":01W01234521\n";
-char adress[3] = "01";
-char order[3] = "W0";
-char data[500]="12345";
+const char Wx = 'W';
+const char Rx = 'R';
+char inc_frame[1024];
+char adress[3];
+char order[3];
+char data[500];
 char crc[3];
 char crcCalculated[3];
+int fd;
 void frame_decoder(char *inc_frame);
+void order_recognition(char *adress, char *order, char *data, char *crc,char *crcCalculated);
 
 
 
 int main()
 {
-
+    fd = open("/dev/serl", O_RDONLY);
+    dev_read(fd, inc_frame, 1024, 1, 0, 0, 0, 0);
     frame_decoder(inc_frame);
-    if (strcmp(crcCalculated,crc) == 0)
-        printf("Control Sum is ok \n");
-    else
-        printf("CRC ERROR \n");
+    order_recognition(adress, order, data, crc, crcCalculated);
+    close(fd);
     return 0;
-
 }
 
 void frame_decoder(char *inc_frame)
@@ -35,29 +37,45 @@ void frame_decoder(char *inc_frame)
     int index = 0;
     unsigned char crc_recalculated = 0;
     unsigned int calculated = 0;
-    char crcCalculated[3];
 
     length = strlen(inc_frame);
     data_length = length - 8;
     memcpy(adress,&inc_frame[1],2);
     memcpy(order,&inc_frame[3],2);
     memcpy(crc,&inc_frame[5+data_length],2);
-    //*Dodaæ null terminated
     memcpy(data,&inc_frame[5],data_length);
-    //*printf("%s \n", adress);
-    //*printf("%s \n", order);
-    printf("%s \n", crc);
-    //*printf("%s \n", data);
+    printf("Adress is %s \n", adress);
+    printf("Order is %s \n", order);
+    printf("Data are %s \n", data);
+    printf("CRC comming from message is %s \n", crc);
+
     for (index = 0; index < length-3; index++)
 		{
         crc_recalculated += inc_frame[index];
 		}
     calculated = crc_recalculated;
     itoa(calculated,crcCalculated, 16);
-    printf("%s \n", crcCalculated);
-
-
-
+    printf("Calculated CRC is %s \n", crcCalculated);
 }
+void order_recognition(char *adress, char *order, char *data, char *crc, char *crcCalculated)
+{
+    char temp_order[3];
+    int temp_calculations;
 
+    temp_order[3] = order[3];
+
+    if (strcmp(crcCalculated,crc) == 0)
+    {
+        /*CheckSum is correct*/
+        if(Wx == order[0] || Rx == order[0])
+        {
+            printf("Order Correct");
+        }
+        else
+            printf("Order Incorrect");
+    }
+
+    else
+        printf("Sending N0 answer \n");
+}
 
