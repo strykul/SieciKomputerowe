@@ -9,7 +9,7 @@
 char start_symbol[2] = ":";
 char stop_symbol[2] = "\n";
 char adress[3] = "01";
-char order[3] = "WO";
+char order[3] = "W0";
 char data[500]="12345";
 char frame[1024];
 void frame_generator(char *start_symbol, char *adress, char *order, char *data, char *stop_symbol);
@@ -31,22 +31,25 @@ void frame_generator(char *start_symbol, char *adress, char *order, char *data, 
 	char temp[1024];
 	int index = 0;
 	int length;
+	unsigned int tmp;
 	unsigned int calculated;
 
-	strcat(temp, start_symbol);
+	strcpy(temp, start_symbol);
 	strcat(temp, adress);
 	strcat(temp, order);
 	strcat(temp, data);
 	length = strlen(temp);
 	for (index = 0; index < length; index++)
 		{
-		crc += temp[index];
+        crc += temp[index];
 		}
     calculated = crc;
     itoa(calculated,crcCalculated, 16);
 	strcat(temp, crcCalculated);
 	strcat(temp, stop_symbol);
 	strcat(frame, temp);
+	length = strlen(frame);
+	printf("%d", length);
 }
 
 
