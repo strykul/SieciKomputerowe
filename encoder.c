@@ -51,7 +51,7 @@ void frame_generator(char *start_symbol, char *adress, char *order, char *data, 
 	strcat(temp, stop_symbol);
 	strcat(frame, temp);
 	length = strlen(frame);
-	printf("%d", length);
+
 }
 
 
