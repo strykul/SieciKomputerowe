@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-/*#include <sys/dev.h>
+#include <sys/dev.h>
 #include <sys/proxy.h>
-#include <sys/kernel.h>*/
+#include <sys/kernel.h>
 #include <string.h>
+#include<sys/stat.h>
+#include<fcntl.h>
 
 const char Wx = 'W';
 const char Rx = 'R';
@@ -22,12 +24,16 @@ void order_recognition(char *adress, char *order, char *data, char *crc,char *cr
 
 int main()
 {
-    fd = open("/dev/serl", O_RDONLY);
+
+    fd = open("/dev/ser1", O_RDONLY);
+ 	while(1){
     dev_read(fd, inc_frame, 1024, 1, 0, 0, 0, 0);
     frame_decoder(inc_frame);
     order_recognition(adress, order, data, crc, crcCalculated);
+    }
     close(fd);
-    return 0;
+
+
 }
 
 void frame_decoder(char *inc_frame)
