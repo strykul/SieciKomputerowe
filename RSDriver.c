@@ -9,6 +9,8 @@
 #include <fcntl.h>
 #include <ctype.h>
 
+char start_symbol[2] = ":";
+char stop_symbol[2] = "\n";
 const char Wx = 'W';
 const char Rx = 'R';
 char inc_frame[1024];
@@ -17,23 +19,28 @@ char order[3];
 char data[500];
 char crc[3];
 char crcCalculated[3];
-int fd;
+int fd, i, fp;
 void frame_decoder(char *inc_frame);
 void order_recognition(char *adress, char *order, char *data, char *crc,char *crcCalculated);
-
+void frame_generator(char *start_symbol, char *adress, char *order, char *data, char *stop_symbol);
+void data_input();
 
 
 int main()
 {
-
+    while(1){
+    data_input();
+	frame_generator(start_symbol, adress, order,  data, stop_symbol);
+    fp = open("/dev/ser1", O_WRONLY);
+	printf(" Generated frame %s \n", frame);
+	write(fp, frame, 1024 );
+	close(fp);
     fd = open("/dev/ser1", O_RDONLY);
- 	while(1){
     dev_read(fd, inc_frame, 1024, 1, 0, 0, 0, 0);
     frame_decoder(inc_frame);
     order_recognition(adress, order, data, crc, crcCalculated);
-    }
     close(fd);
-
+    }
 
 }
 
@@ -69,12 +76,12 @@ void order_recognition(char *adress, char *order, char *data, char *crc, char *c
     int temp_calculations, temp_length, temp_index;
 
     temp_order[3] = order[3];
-    
+
     temp_length = strlen(crcCalculated);
-    
+
     for(temp_index = 0; temp_index < temp_length; temp_index++){
     crcCalculated[temp_index]=toupper(crcCalculated[temp_index]);
-    
+
     }
 	printf("Calculated CRC is %s \n", crcCalculated);
     if (strcmp(crcCalculated,crc) == 0)
@@ -91,4 +98,60 @@ void order_recognition(char *adress, char *order, char *data, char *crc, char *c
     else
         printf("Sending N0 answer \n");
 }
+
+void data_input()
+{
+    printf("Podaj wartosc adresu - od 01-0f \n");
+    scanf("%s",&adress);
+    printf("\nPodaj wartosc rozkazu dla rejestru (Wx, Rx) \n");
+    scanf("%s", &order);
+    temp_len = strlen(order);
+    for(i=0; i < temp_len; i++)
+    {
+    order[i] = toupper(order[i]);
+    }
+    if(order[0] == 'W'){
+    printf("\nPodaj dane \n");
+    scanf("%s", &data);
+    printf("\n");
+    }
+    else
+    {
+    printf("Dane z rejestru %d zostana odczytane\n", order[1]);
+    }
+}
+
+void frame_generator(char *start_symbol, char *adress, char *order, char *data, char *stop_symbol)
+{
+
+	char crc = 0;
+	char crcCalculated[3];
+	char temp[1024];
+	int index = 0;
+	int length;
+	unsigned int tmp;
+	unsigned int calculated;
+
+	strcpy(temp, start_symbol);
+	strcat(temp, adress);
+	strcat(temp, order);
+	strcat(temp, data);
+	length = strlen(temp);
+	for (index = 0; index < length; index++)
+		{
+        crc += temp[index];
+		}
+    calculated = crc;
+    itoa(calculated,crcCalculated, 16);
+    for(index = 0; index < strlen(crcCalculated); index++)
+    {
+            crcCalculated[index] = toupper(crcCalculated[index]);
+    }
+	strcat(temp, crcCalculated);
+	strcat(temp, stop_symbol);
+	strcat(frame, temp);
+	length = strlen(frame);
+
+}
+
 

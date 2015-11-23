@@ -11,11 +11,12 @@
 
 char start_symbol[2] = ":";
 char stop_symbol[2] = "\n";
-char adress[3] = "01";
-char order[3] = "W0";
-char data[500]="123456666";
+char adress[3];
+char order[3];
+char data[500];
 char frame[1024];
-int fp;
+int fp, i;
+int temp_len;
 void frame_generator(char *start_symbol, char *adress, char *order, char *data, char *stop_symbol);
 
 int main()
@@ -23,11 +24,21 @@ int main()
     printf("Podaj wartosc adresu - od 01-0f \n");
     scanf("%s",&adress);
     printf("\nPodaj wartosc rozkazu dla rejestru (Wx, Rx) \n");
-    scanf("%s", &order);
+    scanf("%s", &order);   
+    temp_len = strlen(order);
+    for(i=0; i < temp_len; i++)
+    {
+    order[i] = toupper(order[i]);
+    }
+    if(order[0] == 'W'){
     printf("\nPodaj dane \n");
     scanf("%s", &data);
     printf("\n");
-
+    }
+    else
+    {
+    printf("Dane z rejestru %d zostana odczytane\n", order[1]);
+    }
     fp = open("/dev/ser1", O_WRONLY);
 	frame_generator(start_symbol, adress, order,  data, stop_symbol);
 	printf(" Generated frame %s \n", frame);
