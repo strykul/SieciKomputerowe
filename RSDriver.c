@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/dev.h>
-#include <sys/proxy.h>
-#include <sys/kernel.h>
+//#include <sys/dev.h>
+//#include <sys/proxy.h>
+//#include <sys/kernel.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -14,12 +14,13 @@ char stop_symbol[2] = "\n";
 const char Wx = 'W';
 const char Rx = 'R';
 char inc_frame[1024];
+char frame[1024];
 char adress[3];
 char order[3];
 char data[500];
 char crc[3];
 char crcCalculated[3];
-int fd, i, fp;
+int i, fp;
 void frame_decoder(char *inc_frame);
 void order_recognition(char *adress, char *order, char *data, char *crc,char *crcCalculated);
 void frame_generator(char *start_symbol, char *adress, char *order, char *data, char *stop_symbol);
@@ -31,15 +32,14 @@ int main()
     while(1){
     data_input();
 	frame_generator(start_symbol, adress, order,  data, stop_symbol);
-    fp = open("/dev/ser1", O_WRONLY);
+    fp = open("/dev/ser1", O_WRONLY | O_RDONLY);
 	printf(" Generated frame %s \n", frame);
-	write(fp, frame, 1024 );
-	close(fp);
-    fd = open("/dev/ser1", O_RDONLY);
-    dev_read(fd, inc_frame, 1024, 1, 0, 0, 0, 0);
+	write(fp, frame, strlen(frame) );
+	delay(5000);
+    dev_read(fp, inc_frame, 1024, 1, 0, 0, 0, 0);
     frame_decoder(inc_frame);
     order_recognition(adress, order, data, crc, crcCalculated);
-    close(fd);
+    close(fp);
     }
 
 }
@@ -70,6 +70,7 @@ void frame_decoder(char *inc_frame)
     calculated = crc_recalculated;
     itoa(calculated,crcCalculated, 16);
 }
+
 void order_recognition(char *adress, char *order, char *data, char *crc, char *crcCalculated)
 {
     char temp_order[3];
@@ -101,6 +102,7 @@ void order_recognition(char *adress, char *order, char *data, char *crc, char *c
 
 void data_input()
 {
+    int temp_len;
     printf("Podaj wartosc adresu - od 01-0f \n");
     scanf("%s",&adress);
     printf("\nPodaj wartosc rozkazu dla rejestru (Wx, Rx) \n");
