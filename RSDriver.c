@@ -88,8 +88,14 @@ int order_recognition(char *inc_adress, char *inc_order, char *inc_data, char *i
     }
 
 
+
+        /*CheckSum is correct
+        nalezy rozroznic crc i inc_crc, przed dalsza weryfikacja czy przychodzace crc jest rowne policzonemu
+
+
+        */
         if(Wx == order[0] || Rx == order[0]){
-            if (strcmp(crcCalculated,inc_crc) == 0){
+            if (strcmp(crcCalculated,crc) == 0){
 
             printf("Adress is %s \n", inc_adress);
     		printf("Order is %s \n", inc_order);
@@ -116,7 +122,7 @@ int order_recognition(char *inc_adress, char *inc_order, char *inc_data, char *i
 }
 
 int data_input()
-{	strcat(frame, temp);
+{
 
 	int temp_len;
     printf("Podaj wartosc adresu - od 01-0f \n");
@@ -131,7 +137,7 @@ int data_input()
     printf("\nPodaj dane \n");
     scanf("%s", &data);
     printf("\n");
-    return SUCCESS;	strcat(frame, temp);
+    return SUCCESS;
     }
     else if(order[0] == 'R'){
     printf("Dane z rejestru %s zostana odczytane\n", order);
@@ -162,7 +168,7 @@ void frame_generator(char *start_symbol, char *adress, char *order, char *data, 
 	if(order[0]=='W'){
 	strcat(temp, data);
 	}
-	length = strlen(temp);crcCalculated
+	length = strlen(temp);
 	for (index = 0; index < length; index++){
         crc += temp[index];
 		}
@@ -180,7 +186,7 @@ void frame_generator(char *start_symbol, char *adress, char *order, char *data, 
 }
 
 
-int communication()crcCalculated
+int communication()
 {
 frame_generator(start_symbol, adress, order,  data, stop_symbol);
 fp = open("/dev/ser1", O_RDWR);
