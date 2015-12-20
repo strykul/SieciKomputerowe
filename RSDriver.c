@@ -87,13 +87,6 @@ int order_recognition(char *inc_adress, char *inc_order, char *inc_data, char *i
     crcCalculated[temp_index]=toupper(crcCalculated[temp_index]);
     }
 
-
-
-        /*CheckSum is correct
-        nalezy rozroznic crc i inc_crc, przed dalsza weryfikacja czy przychodzace crc jest rowne policzonemu
-
-
-        */
         if(Wx == order[0] || Rx == order[0]){
             if (strcmp(crcCalculated,crc) == 0){
 
